@@ -1,0 +1,58 @@
+<!DOCTYPE>
+<html lang="en">
+  <head>
+    <title>The flApp Store - brought to you by the Pirates of the Dark Table</title>
+    <meta charset="utf-8">
+    <script type="text/javascript">
+    /* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+    function makeLi(appObj) {
+      return '<li>'+appObj.name
+        +'<ul>'
+          +'<li>'+appObj.description+'</li><li>by: '+appObj.publisher+'</li>'
+          +'<li><input type="submit" value="install" onclick="install(\''+appObj.hash+'\');"></li>'
+          +'<li><div><iframe class="FlattrButton" width="110" scrolling="no" height="20" frameborder="0" src="http://api.flattr.com/button/view/'
+            +'?url='+encodeURIComponent('https://5apps.com/apps/'+appObj.hash)
+            +'&title='+encodeURIComponent(appObj.name)
+            +'&description='+encodeURIComponent(appObj.description)
+            +'&uid='+encodeURIComponent(appObj.publisher)
+            +'&category=software&button=compact&'
+            +'" border="0" marginheight="0" marginwidth="0" allowtransparency="true"></div></li>'
+        +'</ul></li>';
+    }
+
+    function getStaffPicks() {
+      return [
+        {
+          hash: '4f056dd6bd111f78a100002e',
+          name: 'meute',
+          description: 'An unhosted addressbook app that lets you unhost your social graph. Brought to you by the pirates of the dark table!',
+          publisher: 'pirates-of-the-dark-table'
+          //flattrId: '664299/meute'
+        }
+      ];
+    }
+    function install(hash) {
+      alert('installing '+hash);
+    }
+    function onLoad() {
+      var str = '';
+      var staffPicks = getStaffPicks();
+      for(var i=0; i<staffPicks.length;i++) {
+        str+=makeLi(staffPicks[i]);
+      }
+      document.getElementById('staffPick').innerHTML = str;
+    }
+    /* ]]> */</script>
+</head>
+  <body onload="onLoad();">
+    <h1>Staff Pick:</h1>
+    <ul id="staffPick"></ul>
+  </body>
+</html>
