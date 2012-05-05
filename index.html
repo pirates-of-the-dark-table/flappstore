@@ -17,16 +17,18 @@
         hash: '4f056dd6bd111f78a100002e',
         name: 'meute',
         description: 'An unhosted addressbook app that lets you unhost your social graph. Brought to you by the pirates of the dark table!',
-        publisher: 'pirates-of-the-dark-table'
+        publisher: 'pirates-of-the-dark-table',
+        url: 'http://hello-world.michiel.5apps.com'
       }));
       localStorage.setItem('staffPick', JSON.stringify(['4f056dd6bd111f78a100002e']));
       localStorage.setItem('installed', JSON.stringify([]));
     }
-    function makeLi(appObj) {
+    function makeLi(appObj, buttons) {
       return '<li>'+appObj.name
         +'<ul>'
           +'<li>'+appObj.description+'</li><li>by: '+appObj.publisher+'</li>'
-          +'<li><input type="submit" value="install" onclick="install(\''+appObj.hash+'\');"></li>'
+          +(buttons.install?'<li><input type="submit" value="install" onclick="install(\''+appObj.hash+'\');"></li>':'')
+          +(buttons.launch?'<li><input type="submit" value="launch" onclick="launch(\''+appObj.hash+'\');"></li>':'')
           +'<li><div><iframe class="FlattrButton" width="110" scrolling="no" height="20" frameborder="0" src="http://api.flattr.com/button/view/'
             +'?url='+encodeURIComponent('https://5apps.com/apps/'+appObj.hash)
             +'&title='+encodeURIComponent(appObj.name)
@@ -51,27 +53,43 @@
       var installed = JSON.parse(localStorage.getItem('installed'));
       installed.push(hash);
       localStorage.setItem('installed', JSON.stringify(installed));
-      fillUl('installed');
+      fillUl('installed', {'launch':1});
+    }
+    function launch(hash) {
+      var appObj = JSON.parse(localStorage.getItem('app-'+hash));
+      window.open(appObj.url);
     }
     function onLoad() {
       initData();
-      fillUl('staffPick');
-      fillUl('installed');
+      showHome();
     }
-    function fillUl(arrName) {
+    function showHome() {
+      document.getElementById('store').style.display='none';
+      document.getElementById('home').style.display='block';
+      fillUl('installed', {'launch':1});
+    }
+    function showStore() {
+      document.getElementById('store').style.display='block';
+      document.getElementById('home').style.display='none';
+      fillUl('staffPick', {'install':1});
+    }
+    function fillUl(arrName, buttons) {
       var str = '';
       var arr = getAppsArr(arrName);
       for(var i=0; i<arr.length;i++) {
-        str+=makeLi(arr[i]);
+        str+=makeLi(arr[i], buttons);
       }
       document.getElementById(arrName).innerHTML = str;
     }
     /* ]]> */</script>
 </head>
   <body onload="onLoad();">
-    <h1>Staff Pick:</h1>
-    <ul id="staffPick"></ul>
-    <h1>Installed:</h1>
-    <ul id="installed"></ul>
+    <div id="store">
+      <h1>Staff Pick: <input value="<" onclick="showHome();" type="submit"></h1>
+      <ul id="staffPick"></ul>
+    </div><div id="home">
+      <h1>Installed: <input value="+" onclick="showStore();" type="submit"></h1>
+      <ul id="installed"></ul>
+    </div>
   </body>
 </html>
