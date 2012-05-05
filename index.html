@@ -12,6 +12,16 @@
         s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
         t.parentNode.insertBefore(s, t);
     })();
+    function initData() {
+      localStorage.setItem('app-4f056dd6bd111f78a100002e', JSON.stringify({
+        hash: '4f056dd6bd111f78a100002e',
+        name: 'meute',
+        description: 'An unhosted addressbook app that lets you unhost your social graph. Brought to you by the pirates of the dark table!',
+        publisher: 'pirates-of-the-dark-table'
+      }));
+      localStorage.setItem('staffPicks', JSON.stringify(['4f056dd6bd111f78a100002e']));
+      localStorage.setItem('installed', JSON.stringify([]));
+    }
     function makeLi(appObj) {
       return '<li>'+appObj.name
         +'<ul>'
@@ -27,23 +37,23 @@
         +'</ul></li>';
     }
 
-    function getStaffPicks() {
-      return [
-        {
-          hash: '4f056dd6bd111f78a100002e',
-          name: 'meute',
-          description: 'An unhosted addressbook app that lets you unhost your social graph. Brought to you by the pirates of the dark table!',
-          publisher: 'pirates-of-the-dark-table'
-          //flattrId: '664299/meute'
-        }
-      ];
+    function getAppsArr(arrName) {
+      var arr = JSON.parse(localStorage.getItem(arrName));
+      var ret = [];
+      for(var i=0; i<arr.length; i++) {
+        var thisObj = JSON.parse(localStorage.getItem('app-'+arr[i]));
+        thisObj.hash = arr[i];
+        ret.push(thisObj);
+      }
+      return ret;
     }
     function install(hash) {
       alert('installing '+hash);
     }
     function onLoad() {
+      initData();
       var str = '';
-      var staffPicks = getStaffPicks();
+      var staffPicks = getAppsArr('staffPicks');
       for(var i=0; i<staffPicks.length;i++) {
         str+=makeLi(staffPicks[i]);
       }
