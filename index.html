@@ -19,7 +19,7 @@
         description: 'An unhosted addressbook app that lets you unhost your social graph. Brought to you by the pirates of the dark table!',
         publisher: 'pirates-of-the-dark-table'
       }));
-      localStorage.setItem('staffPicks', JSON.stringify(['4f056dd6bd111f78a100002e']));
+      localStorage.setItem('staffPick', JSON.stringify(['4f056dd6bd111f78a100002e']));
       localStorage.setItem('installed', JSON.stringify([]));
     }
     function makeLi(appObj) {
@@ -48,21 +48,30 @@
       return ret;
     }
     function install(hash) {
-      alert('installing '+hash);
+      var installed = JSON.parse(localStorage.getItem('installed'));
+      installed.push(hash);
+      localStorage.setItem('installed', JSON.stringify(installed));
+      fillUl('installed');
     }
     function onLoad() {
       initData();
+      fillUl('staffPick');
+      fillUl('installed');
+    }
+    function fillUl(arrName) {
       var str = '';
-      var staffPicks = getAppsArr('staffPicks');
-      for(var i=0; i<staffPicks.length;i++) {
-        str+=makeLi(staffPicks[i]);
+      var arr = getAppsArr(arrName);
+      for(var i=0; i<arr.length;i++) {
+        str+=makeLi(arr[i]);
       }
-      document.getElementById('staffPick').innerHTML = str;
+      document.getElementById(arrName).innerHTML = str;
     }
     /* ]]> */</script>
 </head>
   <body onload="onLoad();">
     <h1>Staff Pick:</h1>
     <ul id="staffPick"></ul>
+    <h1>Installed:</h1>
+    <ul id="installed"></ul>
   </body>
 </html>
