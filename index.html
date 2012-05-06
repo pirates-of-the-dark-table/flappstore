@@ -90,7 +90,11 @@
       }
       var obj = JSON.parse(localStorage.getItem('app-'+hash));
       getFlattrInfo(obj, function(err, id) {
-        doFlattr(id, cb);
+        if(err == null) {
+          doFlattr(id, cb);
+        } else {
+          alert(err);
+        }
       });
     }
     function getAppsArr(arrName) {
