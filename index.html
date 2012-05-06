@@ -29,13 +29,13 @@
           +'<li>'+appObj.description+'</li><li>by: '+appObj.publisher+'</li>'
           +(buttons.install?'<li><input type="submit" value="install" onclick="install(\''+appObj.hash+'\');"></li>':'')
           +(buttons.launch?'<li><input type="submit" value="launch" onclick="launch(\''+appObj.hash+'\');"></li>':'')
-          +'<li><div><iframe class="FlattrButton" width="110" scrolling="no" height="20" frameborder="0" src="http://api.flattr.com/button/view/'
+          +(buttons.launch?'<li><div><iframe class="FlattrButton" width="110" scrolling="no" height="20" frameborder="0" src="http://api.flattr.com/button/view/'
             +'?url='+encodeURIComponent('https://5apps.com/apps/'+appObj.hash)
             +'&title='+encodeURIComponent(appObj.name)
             +'&description='+encodeURIComponent(appObj.description)
             +'&uid='+encodeURIComponent(appObj.publisher)
             +'&category=software&button=compact&'
-            +'" border="0" marginheight="0" marginwidth="0" allowtransparency="true"></div></li>'
+            +'" border="0" marginheight="0" marginwidth="0" allowtransparency="true"></div></li>':'')
         +'</ul></li>';
     }
 
@@ -60,13 +60,22 @@
       window.open(appObj.url);
     }
     function onLoad() {
+      if(location.hash.length) {
+        var hashParts = location.hash.substring(1).split('&');
+        for(var i=0; i<hashParts.length; i++) {
+          var pairParts = hashParts[i].split('=');
+          if(pairParts[0]=='access_token') {
+            localStorage.setItem('flattrBearerToken', pairParts[1]);
+          }
+        }
+      }
       initData();
       showHome();
     }
     function showHome() {
       document.getElementById('store').style.display='none';
       document.getElementById('home').style.display='block';
-      fillUl('installed', {'launch':1});
+      fillUl('installed', {'launch':1, 'flattr':1});
     }
     function showStore() {
       document.getElementById('store').style.display='block';
@@ -81,9 +90,13 @@
       }
       document.getElementById(arrName).innerHTML = str;
     }
+    function flauth() {
+      window.open('https://flattr.com/oauth/authorize?response_type=token&client_id=l6qiJuB7aBMqUl5oBJU5l47MhaLpFlkRiAZSVqPVSsbCD7R4HB0SwXvEX7Tti3ar&scope=flattr&redirect+uri='+encodeURIComponent(location.href));
+    }
     /* ]]> */</script>
 </head>
   <body onload="onLoad();">
+    <input value="connect to flattr" onclick="flauth();" type="submit">
     <div id="store">
       <h1>Staff Pick: <input value="<" onclick="showHome();" type="submit"></h1>
       <ul id="staffPick"></ul>

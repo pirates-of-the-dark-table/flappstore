@@ -1,0 +1,3 @@
+client_id is said to be 'the client_id found at ...' but it's called the 'key' there
+if you use a non-existing client_id it gives a 400 bad request - it could give some additional info 'client_id unknown'
+if you visit https://flattr.com/oauth/authorize?response_type=token just like that without any 'client_id' parameter, it gives a 500 internal server error
