@@ -20,16 +20,22 @@
         publisher: 'pirates-of-the-dark-table',
         url: 'http://hello-world.michiel.5apps.com'
       }));
-      localStorage.setItem('staffPick', JSON.stringify(['4f056dd6bd111f78a100002e']));
-      localStorage.setItem('installed', JSON.stringify([]));
+      if(!localStorage.getItem('staffPick')) {
+        localStorage.setItem('staffPick', JSON.stringify(['4f056dd6bd111f78a100002e']));
+      }
+      if(!localStorage.getItem('installed')) {
+        localStorage.setItem('installed', JSON.stringify([]));
+      }
     }
     function makeLi(appObj, buttons) {
       return '<li>'+appObj.name
         +'<ul>'
           +'<li>'+appObj.description+'</li><li>by: '+appObj.publisher+'</li>'
           +(buttons.install?'<li><input type="submit" value="install" onclick="install(\''+appObj.hash+'\');"></li>':'')
-          +(buttons.launch?'<li><input type="submit" value="launch" onclick="launch(\''+appObj.hash+'\');"></li>':'')
-          +(buttons.launch?'<li><div><iframe class="FlattrButton" width="110" scrolling="no" height="20" frameborder="0" src="http://api.flattr.com/button/view/'
+          +(buttons['try out']?'<li><input type="submit" value="launch" onclick="launch(\''+appObj.hash+'\');"></li>':'')
+          +(buttons['flattr and use']?'<li><input type="submit" value="flattr and use" onclick="flattr(\''+appObj.hash+'\', launch(\''+appObj.hash+'\'));"></li>':'')
+          +(buttons['flattr']?'<li><input type="submit" value="flattr" onclick="flattr(\''+appObj.hash+'\');"></li>':'')
+          +(buttons['flattr with iframe']?'<li><div><iframe class="FlattrButton" width="110" scrolling="no" height="20" frameborder="0" src="http://api.flattr.com/button/view/'
             +'?url='+encodeURIComponent('https://5apps.com/apps/'+appObj.hash)
             +'&title='+encodeURIComponent(appObj.name)
             +'&description='+encodeURIComponent(appObj.description)
@@ -39,18 +45,53 @@
         +'</ul></li>';
     }
     function getFlattrInfo(appObj, cb) {
+      if(!cb) {
+        cb = function() {};
+      }
       var xhr = new XMLHttpRequest();
       xhr.open('GET', 'https://api.flattr.com/rest/v2/things/lookup/?url='+encodeURIComponent('https://5apps.com/apps/'+appObj.hash), true);
       xhr.onreadystatechange = function() {
         if(xhr.readyState==4) {
-          try {
-            var obj=JSON.parse(xhr.responseText);
-            alert(obj.id);
-          } catch(e) {
+          if(xhr.status==200) {
+            try {
+              var obj=JSON.parse(xhr.responseText);
+              cb(null, obj.id);
+            } catch(e) {
+              cb(e);
+            }
+          } else {
+            cb(xhr.status);
           }
         }
-      }
+      };
       xhr.send();
+    }
+    function doFlattr(id, cb) {
+      if(!cb) {
+        cb = function() {};
+      }
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://api.flattr.com/rest/v2/things/'+id+'/flattr', true);
+      xhr.setRequestHeader('Authorization', 'Bearer '+localStorage.getItem('flattrBearerToken'));
+      xhr.onreadystatechange = function() {
+        if(xhr.readyState==4) {
+          if(xhr.status==200) {
+            cb(null);
+          } else {
+            cb(xhr.status);
+          }
+        }
+      };
+      xhr.send();
+    }
+    function flattr(hash, cb) {
+      if(!cb) {
+        cb = function() {};
+      }
+      var obj = JSON.parse(localStorage.getItem('app-'+hash));
+      getFlattrInfo(obj, function(err, id) {
+        doFlattr(id, cb);
+      });
     }
     function getAppsArr(arrName) {
       var arr = JSON.parse(localStorage.getItem(arrName));
@@ -59,7 +100,6 @@
         var thisObj = JSON.parse(localStorage.getItem('app-'+arr[i]));
         thisObj.hash = arr[i];
         ret.push(thisObj);
-        getFlattrInfo(thisObj);
       }
       return ret;
     }
@@ -67,7 +107,7 @@
       var installed = JSON.parse(localStorage.getItem('installed'));
       installed.push(hash);
       localStorage.setItem('installed', JSON.stringify(installed));
-      fillUl('installed', {'launch':1});
+      fillUl('installed', {'try out':1, 'flattr and use':1, 'flattr':1});
     }
     function launch(hash) {
       var appObj = JSON.parse(localStorage.getItem('app-'+hash));
@@ -89,7 +129,7 @@
     function showHome() {
       document.getElementById('store').style.display='none';
       document.getElementById('home').style.display='block';
-      fillUl('installed', {'launch':1, 'flattr':1});
+      fillUl('installed', {'try out':1, 'flattr and use':1, 'flattr':1});
     }
     function showStore() {
       document.getElementById('store').style.display='block';
