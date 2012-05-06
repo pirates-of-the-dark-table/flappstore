@@ -38,7 +38,20 @@
             +'" border="0" marginheight="0" marginwidth="0" allowtransparency="true"></div></li>':'')
         +'</ul></li>';
     }
-
+    function getFlattrInfo(appObj, cb) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', 'https://api.flattr.com/rest/v2/things/lookup/?url='+encodeURIComponent('https://5apps.com/apps/'+appObj.hash), true);
+      xhr.onreadystatechange = function() {
+        if(xhr.readyState==4) {
+          try {
+            var obj=JSON.parse(xhr.responseText);
+            alert(obj.id);
+          } catch(e) {
+          }
+        }
+      }
+      xhr.send();
+    }
     function getAppsArr(arrName) {
       var arr = JSON.parse(localStorage.getItem(arrName));
       var ret = [];
@@ -46,6 +59,7 @@
         var thisObj = JSON.parse(localStorage.getItem('app-'+arr[i]));
         thisObj.hash = arr[i];
         ret.push(thisObj);
+        getFlattrInfo(thisObj);
       }
       return ret;
     }
