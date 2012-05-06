@@ -18,7 +18,7 @@
         name: 'meute',
         description: 'An unhosted addressbook app that lets you unhost your social graph. Brought to you by the pirates of the dark table!',
         publisher: 'pirates-of-the-dark-table',
-        url: 'http://hello-world.michiel.5apps.com'
+        url: 'http://meute.piratesofthedarktable.5apps.com'
       }));
       if(!localStorage.getItem('staffPick')) {
         localStorage.setItem('staffPick', JSON.stringify(['4fa67b30c43934200a000004']));
@@ -78,16 +78,48 @@
           if(xhr.status==200) {
             cb(null);
           } else {
-            cb(xhr.status);
+            try {
+              cb(JSON.parse(xhr.responseText).error_description);
+            } catch(e) {
+              cb(xhr.status);
+            }
           }
         }
       };
       xhr.send();
     }
-    function flattr(hash, cb) {
+    function autoFlattr(url, publisher, cb) {
       if(!cb) {
         cb = function() {};
       }
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://api.flattr.com/rest/v2/flattr', true);
+      xhr.setRequestHeader('Authorization', 'Bearer '+localStorage.getItem('flattrBearerToken'));
+      xhr.onreadystatechange = function() {
+        if(xhr.readyState==4) {
+          if(xhr.status==200) {
+            cb(null);
+          } else {
+            try {
+              cb(JSON.parse(xhr.responseText).error_description);
+            } catch(e) {
+              cb(xhr.status);
+            }
+          }
+        }
+      };
+      xhr.send(JSON.stringify({
+        //url: 'http://flattr.com/submit/auto?url='+encodeURIComponent(url)+'&user_id='+encodeURIComponent(publisher)
+        url: 'http://flattr.com/submit/auto?url=http%3A%2F%2Fblog.flattr.net%2F2011%2F10%2Fapi-v2-beta-out-whats-changed%2F&user_id=flattr'
+      }));
+    }
+
+    function flattr(hash, cb) {
+      cb = function(err) {
+        if(err != null) {
+          alert(err);
+        }
+      };
       var obj = JSON.parse(localStorage.getItem('app-'+hash));
       getFlattrInfo(obj, function(err, id) {
         if(err == null) {
@@ -96,6 +128,11 @@
           alert(err);
         }
       });
+//      autoFlattr(obj.url, obj.publisher, function(err) {
+//        if(err != null) {
+//          alert(err);
+//        }
+//      });
     }
     function getAppsArr(arrName) {
       var arr = JSON.parse(localStorage.getItem(arrName));
